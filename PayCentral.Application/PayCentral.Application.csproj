@@ -24,7 +24,6 @@
     <Folder Include="Common\Behaviours\" />
     <Folder Include="Wallets\" />
     <Folder Include="Notifications\" />
-    <Folder Include="Reports\" />
   </ItemGroup>
 
 </Project>

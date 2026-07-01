@@ -42,6 +42,8 @@ public static class DependencyInjection
         services.AddScoped<IFraudService, FraudService>();
         services.AddScoped<IFraudHubService, FraudHubService>();
 
+        services.AddScoped<ICsvExportService, CsvExportService>();
+
         // JWT Authentication
         services.AddAuthentication(options =>
         {

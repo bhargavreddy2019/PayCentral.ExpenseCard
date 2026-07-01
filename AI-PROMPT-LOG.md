@@ -177,3 +177,31 @@ idempotency keys."
 
 **What AI Missed:**
 - Nothing significant
+
+## Entry 9 — Fraud Detection Engine
+
+**Prompt:**
+"I need a fraud rule engine for a prepaid card platform. 
+Each rule should be independent and easy to add new ones. 
+Rules needed: large spend in 10 minutes, international 
+transaction, rapid purchases, multiple merchant categories, 
+excessive failed transactions."
+
+**AI Produced:**
+- IFraudRule interface with FraudRuleResult
+- 5 independent rule implementations
+- FraudService that evaluates all rules per transaction
+- SignalR hub for real-time admin alerts
+- FraudController with get and resolve endpoints
+
+**My Decisions:**
+- Used IEnumerable<IFraudRule> injection pattern so new 
+  rules can be added by registering in DI only
+- Fraud detection runs AFTER transaction saves — 
+  fraud check never blocks a legitimate transaction
+- Moved IFraudHubService to Application interfaces — 
+  keeps Infrastructure free of WebApi dependency
+
+**What AI Missed:**
+- Circular dependency — Infrastructure cannot reference 
+  WebApi. Fixed by using base Hub type in FraudHubService
