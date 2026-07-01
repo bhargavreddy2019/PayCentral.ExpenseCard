@@ -12,7 +12,9 @@ public class LoadFundsCommandHandler : IRequestHandler<LoadFundsCommand, ApiResp
     private readonly IAppDbContext _context;
     private readonly ICurrentUserService _currentUser;
 
-    public LoadFundsCommandHandler(IAppDbContext context, ICurrentUserService currentUser)
+    public LoadFundsCommandHandler(
+        IAppDbContext context,
+        ICurrentUserService currentUser)
     {
         _context = context;
         _currentUser = currentUser;
@@ -21,7 +23,6 @@ public class LoadFundsCommandHandler : IRequestHandler<LoadFundsCommand, ApiResp
     public async Task<ApiResponse<TransactionDto>> Handle(
         LoadFundsCommand request, CancellationToken cancellationToken)
     {
-        // Idempotency check
         if (!string.IsNullOrEmpty(request.IdempotencyKey))
         {
             var existing = await _context.Transactions
@@ -45,7 +46,6 @@ public class LoadFundsCommandHandler : IRequestHandler<LoadFundsCommand, ApiResp
         if (card.Status == CardStatus.Closed)
             throw new ArgumentException("Cannot load funds to a closed card");
 
-        // Update wallet balance
         card.Wallet.Balance += request.Amount;
         card.Wallet.AvailableBalance += request.Amount;
         card.Wallet.UpdatedAt = DateTime.UtcNow;
@@ -83,17 +83,21 @@ public class PurchaseCommandHandler : IRequestHandler<PurchaseCommand, ApiRespon
 {
     private readonly IAppDbContext _context;
     private readonly ICurrentUserService _currentUser;
+    private readonly IFraudService _fraudService;
 
-    public PurchaseCommandHandler(IAppDbContext context, ICurrentUserService currentUser)
+    public PurchaseCommandHandler(
+        IAppDbContext context,
+        ICurrentUserService currentUser,
+        IFraudService fraudService)
     {
         _context = context;
         _currentUser = currentUser;
+        _fraudService = fraudService;
     }
 
     public async Task<ApiResponse<TransactionDto>> Handle(
         PurchaseCommand request, CancellationToken cancellationToken)
     {
-        // Idempotency check
         if (!string.IsNullOrEmpty(request.IdempotencyKey))
         {
             var existing = await _context.Transactions
@@ -111,7 +115,6 @@ public class PurchaseCommandHandler : IRequestHandler<PurchaseCommand, ApiRespon
         if (card == null)
             throw new KeyNotFoundException($"Card {request.CardId} not found");
 
-        // Business rules
         if (card.Status == CardStatus.Blocked)
             throw new ArgumentException("Transaction declined — card is blocked");
 
@@ -121,7 +124,6 @@ public class PurchaseCommandHandler : IRequestHandler<PurchaseCommand, ApiRespon
         if (card.Status == CardStatus.Closed)
             throw new ArgumentException("Transaction declined — card is closed");
 
-        // Prevent negative balance
         if (!card.Wallet.CanDebit(request.Amount))
             throw new ArgumentException(
                 $"Insufficient funds. Available balance: {card.Wallet.AvailableBalance:C}");
@@ -133,7 +135,6 @@ public class PurchaseCommandHandler : IRequestHandler<PurchaseCommand, ApiRespon
                 .FirstOrDefaultAsync(m => m.Id == request.MerchantId, cancellationToken);
         }
 
-        // Debit wallet
         card.Wallet.Balance -= request.Amount;
         card.Wallet.AvailableBalance -= request.Amount;
         card.Wallet.UpdatedAt = DateTime.UtcNow;
@@ -157,6 +158,9 @@ public class PurchaseCommandHandler : IRequestHandler<PurchaseCommand, ApiRespon
         await _context.Transactions.AddAsync(transaction, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
 
+        // Run fraud detection
+        await _fraudService.EvaluateTransactionAsync(transaction, card);
+
         return ApiResponse<TransactionDto>.Ok(new TransactionDto(
             transaction.Id, transaction.ReferenceNumber,
             card.MaskedCardNumber, card.User.FullName,
@@ -175,7 +179,9 @@ public class RefundCommandHandler : IRequestHandler<RefundCommand, ApiResponse<T
     private readonly IAppDbContext _context;
     private readonly ICurrentUserService _currentUser;
 
-    public RefundCommandHandler(IAppDbContext context, ICurrentUserService currentUser)
+    public RefundCommandHandler(
+        IAppDbContext context,
+        ICurrentUserService currentUser)
     {
         _context = context;
         _currentUser = currentUser;
@@ -184,7 +190,6 @@ public class RefundCommandHandler : IRequestHandler<RefundCommand, ApiResponse<T
     public async Task<ApiResponse<TransactionDto>> Handle(
         RefundCommand request, CancellationToken cancellationToken)
     {
-        // Idempotency check
         if (!string.IsNullOrEmpty(request.IdempotencyKey))
         {
             var existing = await _context.Transactions
@@ -213,7 +218,6 @@ public class RefundCommandHandler : IRequestHandler<RefundCommand, ApiResponse<T
         if (card == null)
             throw new KeyNotFoundException($"Card {request.CardId} not found");
 
-        // Credit wallet
         card.Wallet.Balance += request.Amount;
         card.Wallet.AvailableBalance += request.Amount;
         card.Wallet.UpdatedAt = DateTime.UtcNow;
@@ -253,7 +257,9 @@ public class ReversalCommandHandler : IRequestHandler<ReversalCommand, ApiRespon
     private readonly IAppDbContext _context;
     private readonly ICurrentUserService _currentUser;
 
-    public ReversalCommandHandler(IAppDbContext context, ICurrentUserService currentUser)
+    public ReversalCommandHandler(
+        IAppDbContext context,
+        ICurrentUserService currentUser)
     {
         _context = context;
         _currentUser = currentUser;
@@ -262,7 +268,6 @@ public class ReversalCommandHandler : IRequestHandler<ReversalCommand, ApiRespon
     public async Task<ApiResponse<TransactionDto>> Handle(
         ReversalCommand request, CancellationToken cancellationToken)
     {
-        // Idempotency check
         if (!string.IsNullOrEmpty(request.IdempotencyKey))
         {
             var existing = await _context.Transactions
@@ -293,12 +298,10 @@ public class ReversalCommandHandler : IRequestHandler<ReversalCommand, ApiRespon
 
         var card = originalTransaction.Card;
 
-        // Reverse the debit
         card.Wallet.Balance += originalTransaction.Amount;
         card.Wallet.AvailableBalance += originalTransaction.Amount;
         card.Wallet.UpdatedAt = DateTime.UtcNow;
 
-        // Mark original as reversed
         originalTransaction.Status = TransactionStatus.Reversed;
 
         var reversalTransaction = new Transaction

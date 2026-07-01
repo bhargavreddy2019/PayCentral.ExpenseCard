@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using PayCentral.Application.Common.Interfaces;
+using PayCentral.Application.Fraud;
 using PayCentral.Infrastructure.Persistence;
 using PayCentral.Infrastructure.Services;
 using System.Text;
@@ -17,17 +18,29 @@ public static class DependencyInjection
         IConfiguration configuration)
     {
         // Database
-        services.AddScoped<IAppDbContext, AppDbContext>();
         services.AddDbContext<AppDbContext>(options =>
             options.UseSqlServer(
                 configuration.GetConnectionString("DefaultConnection"),
                 b => b.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)));
+
+        services.AddScoped<IAppDbContext, AppDbContext>();
 
         // Services
         services.AddScoped<IJwtService, JwtService>();
         services.AddScoped<IPasswordService, PasswordService>();
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
+
+        // Fraud rules
+        services.AddScoped<IFraudRule, LargeSpendRule>();
+        services.AddScoped<IFraudRule, InternationalTransactionRule>();
+        services.AddScoped<IFraudRule, RapidPurchaseRule>();
+        services.AddScoped<IFraudRule, MultipleMerchantCategoriesRule>();
+        services.AddScoped<IFraudRule, FailedTransactionsRule>();
+
+        // Fraud services
+        services.AddScoped<IFraudService, FraudService>();
+        services.AddScoped<IFraudHubService, FraudHubService>();
 
         // JWT Authentication
         services.AddAuthentication(options =>

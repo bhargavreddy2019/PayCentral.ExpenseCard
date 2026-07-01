@@ -153,3 +153,27 @@ one that should trigger a fraud alert."
 - Nothing — seeder is straightforward
 
 
+## Entry 8 — Wallet & Transactions
+
+**Prompt:**
+"I need wallet operations for a prepaid card platform. 
+I need Load Funds, Purchase, Refund and Reversal. 
+It must prevent negative balances, block transactions 
+on blocked cards and prevent duplicate requests using 
+idempotency keys."
+
+**AI Produced:**
+- LoadFunds, Purchase, Refund, Reversal handlers
+- GetBalance and GetTransactions query handlers
+- TransactionsController with role-based endpoints
+- FluentValidation on all commands
+
+**My Decisions:**
+- Idempotency check on every mutating operation
+- CanDebit() domain method enforces negative balance rule
+- Reversal marks original transaction as Reversed status
+- Blocked and Suspended cards both decline purchases
+- Closed cards decline all operations
+
+**What AI Missed:**
+- Nothing significant

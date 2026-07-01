@@ -4,6 +4,7 @@ using PayCentral.Application;
 using PayCentral.Infrastructure;
 using PayCentral.Infrastructure.Persistence;
 using PayCentral.Infrastructure.Seeders;
+using PayCentral.WebApi.Hubs;
 using PayCentral.WebApi.Middleware;
 using Serilog;
 
@@ -19,6 +20,7 @@ builder.Host.UseSerilog();
 
 // Services
 builder.Services.AddApplication();
+builder.Services.AddSignalR();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -79,6 +81,7 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHub<FraudHub>("/hubs/fraud");
 // Seed data
 using (var scope = app.Services.CreateScope())
 {
