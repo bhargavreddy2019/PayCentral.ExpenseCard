@@ -65,3 +65,35 @@ and how should they reference each other?"
 - Nothing structural — scaffold is standard Clean Architecture
 
 ---
+
+## Entry 3 — Domain Entities & Interfaces
+
+**Prompt:**
+"I'm building the domain layer for a prepaid expense card 
+platform. What entities do I need and what properties 
+should each have? I need Cards, Wallets, Transactions, 
+Fraud Alerts, Notifications and Audit Logs."
+
+**AI Produced:**
+- 10 entity classes with correct relationships
+- 7 enums covering all status and type values
+- Repository interfaces following generic pattern
+- IUnitOfWork interface
+
+**My Decisions:**
+- Added RowVersion to Wallet for optimistic concurrency — 
+  AI missed this, critical for preventing negative balances
+- Added CanTransitionTo() on Card — closed cards are terminal,
+  AI had no awareness of this fintech domain rule
+- Added CanDebit() on Wallet — domain logic stays in domain,
+  not in application handlers
+- Added IdempotencyKey on Transaction — prevents duplicate 
+  payment processing, AI did not include this initially
+- Added GenerateCardNumber() and GenerateReference() as 
+  static domain methods — business logic belongs in domain
+
+**What AI Missed:**
+- Optimistic concurrency on Wallet (RowVersion)
+- Idempotency key on Transaction
+- Domain transition rules on Card
+- MaskedCardNumber for PCI-DSS compliance
