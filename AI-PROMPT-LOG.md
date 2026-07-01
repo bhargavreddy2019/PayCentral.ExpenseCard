@@ -97,3 +97,32 @@ Fraud Alerts, Notifications and Audit Logs."
 - Idempotency key on Transaction
 - Domain transition rules on Card
 - MaskedCardNumber for PCI-DSS compliance
+
+
+## Entry 4 — DbContext & EF Core Configurations
+
+**Prompt:**
+"I have these domain entities for a prepaid card platform. 
+How should I configure them in EF Core using 
+IEntityTypeConfiguration? I need proper indexes, 
+decimal precision and relationships."
+
+**AI Produced:**
+- AppDbContext with all DbSets
+- Configuration class per entity
+- Relationships, constraints and indexes
+- AppDbContextFactory for design time migrations
+
+**My Decisions:**
+- Added composite index on Transactions (CardId, CreatedAt)
+  for most common query pattern
+- Added composite index on FraudAlerts (Severity, CreatedAt)
+  for admin dashboard
+- Added filtered unique index on IdempotencyKey
+- Pinned all EF Core packages to version 8.0.11 — 
+  NuGet was pulling v10 which is incompatible with .NET 8
+
+**What AI Missed:**
+- Design time factory needed for migrations to work
+- Package version conflicts between EF Core 10 and .NET 8
+- Missing configuration packages for SetBasePath

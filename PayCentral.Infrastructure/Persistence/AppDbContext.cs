@@ -1,10 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using PayCentral.Application.Common.Interfaces;
 using PayCentral.Domain.Entities;
 using System.Reflection;
 
 namespace PayCentral.Infrastructure.Persistence;
 
-public class AppDbContext : DbContext
+public class AppDbContext : DbContext, IAppDbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
