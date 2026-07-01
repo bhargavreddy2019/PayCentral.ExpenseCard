@@ -205,3 +205,29 @@ excessive failed transactions."
 **What AI Missed:**
 - Circular dependency — Infrastructure cannot reference 
   WebApi. Fixed by using base Hub type in FraudHubService
+
+  ## Entry 10 — Reporting & Export
+
+**Prompt:**
+"I need reporting endpoints for a prepaid card platform. 
+I need a Transaction Report, Fraud Report, Card Report 
+and Daily Summary. Each report should support CSV 
+and JSON export."
+
+**AI Produced:**
+- 4 report query handlers
+- CSV export service using reflection
+- ReportsController with format switching
+- Daily summary aggregating all transaction types
+
+**My Decisions:**
+- CSV export uses reflection to auto-generate headers —
+  no hardcoding column names per report type
+- Daily summary loads transactions into memory then 
+  aggregates — acceptable for daily volumes, would use 
+  SQL aggregation at scale
+- File download uses UTF8 encoding with BOM for 
+  Excel compatibility
+
+**What AI Missed:**
+- Nothing significant

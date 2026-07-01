@@ -9,15 +9,18 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, AuthResponse>
     private readonly IAppDbContext _context;
     private readonly IJwtService _jwtService;
     private readonly IPasswordService _passwordService;
+    private readonly IAuditService _auditService;
 
     public LoginCommandHandler(
         IAppDbContext context,
         IJwtService jwtService,
-        IPasswordService passwordService)
+        IPasswordService passwordService,
+        IAuditService auditService)
     {
         _context = context;
         _jwtService = jwtService;
         _passwordService = passwordService;
+        _auditService = auditService;
     }
 
     public async Task<AuthResponse> Handle(
@@ -39,6 +42,10 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, AuthResponse>
         user.LastLoginAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync(cancellationToken);
+        await _auditService.LogAsync(
+            action: "USER_LOGIN",
+            entityName: "User",
+            entityId: user.Id.ToString());
 
         return new AuthResponse(
             accessToken,

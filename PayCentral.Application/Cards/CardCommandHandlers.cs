@@ -11,11 +11,20 @@ public class CreateCardCommandHandler : IRequestHandler<CreateCardCommand, ApiRe
 {
     private readonly IAppDbContext _context;
     private readonly ICurrentUserService _currentUser;
+    private readonly INotificationService _notificationService;
+    private readonly IAuditService _auditService;
 
-    public CreateCardCommandHandler(IAppDbContext context, ICurrentUserService currentUser)
+
+    public CreateCardCommandHandler(
+        IAppDbContext context,
+        ICurrentUserService currentUser,
+        INotificationService notificationService,
+        IAuditService auditService)
     {
         _context = context;
         _currentUser = currentUser;
+        _notificationService = notificationService;
+        _auditService = auditService;
     }
 
     public async Task<ApiResponse<CardDto>> Handle(
@@ -49,6 +58,18 @@ public class CreateCardCommandHandler : IRequestHandler<CreateCardCommand, ApiRe
         await _context.Cards.AddAsync(card, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
 
+        await _notificationService.SendAsync(
+            user.Id,
+            NotificationType.CardCreated,
+            "Card Created",
+            $"Your new card {card.MaskedCardNumber} has been created successfully.");
+
+        await _auditService.LogAsync(
+             action: "CREATE_CARD",
+             entityName: "Card",
+             entityId: card.Id.ToString(),
+             newValues: $"CardNumber: {card.MaskedCardNumber}, UserId: {card.UserId}");
+
         return ApiResponse<CardDto>.Ok(new CardDto(
             card.Id,
             card.MaskedCardNumber,
@@ -68,7 +89,9 @@ public class ActivateCardCommandHandler : IRequestHandler<ActivateCardCommand, A
     private readonly IAppDbContext _context;
     private readonly ICurrentUserService _currentUser;
 
-    public ActivateCardCommandHandler(IAppDbContext context, ICurrentUserService currentUser)
+    public ActivateCardCommandHandler(
+        IAppDbContext context,
+        ICurrentUserService currentUser)
     {
         _context = context;
         _currentUser = currentUser;
@@ -86,7 +109,8 @@ public class ActivateCardCommandHandler : IRequestHandler<ActivateCardCommand, A
             throw new KeyNotFoundException($"Card {request.CardId} not found");
 
         if (!card.CanTransitionTo(CardStatus.Active))
-            throw new ArgumentException($"Card cannot be activated from {card.Status} status");
+            throw new ArgumentException(
+                $"Card cannot be activated from {card.Status} status");
 
         var history = new CardStatusHistory
         {
@@ -120,11 +144,20 @@ public class BlockCardCommandHandler : IRequestHandler<BlockCardCommand, ApiResp
 {
     private readonly IAppDbContext _context;
     private readonly ICurrentUserService _currentUser;
+    private readonly INotificationService _notificationService;
+    private readonly IAuditService _auditService;
 
-    public BlockCardCommandHandler(IAppDbContext context, ICurrentUserService currentUser)
+
+    public BlockCardCommandHandler(
+        IAppDbContext context,
+        ICurrentUserService currentUser,
+        INotificationService notificationService,
+        IAuditService auditService)
     {
         _context = context;
         _currentUser = currentUser;
+        _notificationService = notificationService;
+        _auditService = auditService;
     }
 
     public async Task<ApiResponse<CardDto>> Handle(
@@ -139,7 +172,8 @@ public class BlockCardCommandHandler : IRequestHandler<BlockCardCommand, ApiResp
             throw new KeyNotFoundException($"Card {request.CardId} not found");
 
         if (!card.CanTransitionTo(CardStatus.Blocked))
-            throw new ArgumentException($"Card cannot be blocked from {card.Status} status");
+            throw new ArgumentException(
+                $"Card cannot be blocked from {card.Status} status");
 
         var history = new CardStatusHistory
         {
@@ -159,6 +193,18 @@ public class BlockCardCommandHandler : IRequestHandler<BlockCardCommand, ApiResp
         await _context.CardStatusHistories.AddAsync(history, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
 
+        await _notificationService.SendAsync(
+            card.UserId,
+            NotificationType.CardBlocked,
+            "Card Blocked",
+            $"Your card {card.MaskedCardNumber} has been blocked. " +
+            $"Reason: {request.Reason}");
+
+        await _auditService.LogAsync(
+             action: "BLOCK_CARD",
+             entityName: "Card",
+             entityId: card.Id.ToString(),
+             newValues: $"Status: Blocked, Reason: {request.Reason}");
         return ApiResponse<CardDto>.Ok(new CardDto(
             card.Id, card.MaskedCardNumber,
             card.User.FullName, card.User.Email,
@@ -174,11 +220,16 @@ public class UnblockCardCommandHandler : IRequestHandler<UnblockCardCommand, Api
 {
     private readonly IAppDbContext _context;
     private readonly ICurrentUserService _currentUser;
+    private readonly INotificationService _notificationService;
 
-    public UnblockCardCommandHandler(IAppDbContext context, ICurrentUserService currentUser)
+    public UnblockCardCommandHandler(
+        IAppDbContext context,
+        ICurrentUserService currentUser,
+        INotificationService notificationService)
     {
         _context = context;
         _currentUser = currentUser;
+        _notificationService = notificationService;
     }
 
     public async Task<ApiResponse<CardDto>> Handle(
@@ -213,6 +264,12 @@ public class UnblockCardCommandHandler : IRequestHandler<UnblockCardCommand, Api
         await _context.CardStatusHistories.AddAsync(history, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
 
+        await _notificationService.SendAsync(
+            card.UserId,
+            NotificationType.CardUnblocked,
+            "Card Unblocked",
+            $"Your card {card.MaskedCardNumber} has been unblocked.");
+
         return ApiResponse<CardDto>.Ok(new CardDto(
             card.Id, card.MaskedCardNumber,
             card.User.FullName, card.User.Email,
@@ -229,7 +286,9 @@ public class SuspendCardCommandHandler : IRequestHandler<SuspendCardCommand, Api
     private readonly IAppDbContext _context;
     private readonly ICurrentUserService _currentUser;
 
-    public SuspendCardCommandHandler(IAppDbContext context, ICurrentUserService currentUser)
+    public SuspendCardCommandHandler(
+        IAppDbContext context,
+        ICurrentUserService currentUser)
     {
         _context = context;
         _currentUser = currentUser;
@@ -247,7 +306,8 @@ public class SuspendCardCommandHandler : IRequestHandler<SuspendCardCommand, Api
             throw new KeyNotFoundException($"Card {request.CardId} not found");
 
         if (!card.CanTransitionTo(CardStatus.Suspended))
-            throw new ArgumentException($"Card cannot be suspended from {card.Status} status");
+            throw new ArgumentException(
+                $"Card cannot be suspended from {card.Status} status");
 
         var history = new CardStatusHistory
         {
@@ -281,7 +341,9 @@ public class CloseCardCommandHandler : IRequestHandler<CloseCardCommand, ApiResp
     private readonly IAppDbContext _context;
     private readonly ICurrentUserService _currentUser;
 
-    public CloseCardCommandHandler(IAppDbContext context, ICurrentUserService currentUser)
+    public CloseCardCommandHandler(
+        IAppDbContext context,
+        ICurrentUserService currentUser)
     {
         _context = context;
         _currentUser = currentUser;
@@ -299,7 +361,8 @@ public class CloseCardCommandHandler : IRequestHandler<CloseCardCommand, ApiResp
             throw new KeyNotFoundException($"Card {request.CardId} not found");
 
         if (!card.CanTransitionTo(CardStatus.Closed))
-            throw new ArgumentException($"Card cannot be closed from {card.Status} status");
+            throw new ArgumentException(
+                $"Card cannot be closed from {card.Status} status");
 
         var history = new CardStatusHistory
         {
