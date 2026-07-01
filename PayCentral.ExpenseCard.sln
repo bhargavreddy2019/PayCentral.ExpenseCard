@@ -1,0 +1,62 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.37012.4 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PayCentral.Domain", "PayCentral.Domain\PayCentral.Domain.csproj", "{DD6A4E1C-D2FD-4F9A-80E8-9A74499E809B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PayCentral.Application", "PayCentral.Application\PayCentral.Application.csproj", "{6E1B80D4-3871-4660-8FFC-72E127271BB3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PayCentral.Infrastructure", "PayCentral.Infrastructure\PayCentral.Infrastructure.csproj", "{BD9063AB-D2B1-462D-B1FB-6CF7BB1A58CC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PayCentral.WebApi", "PayCentral.WebApi\PayCentral.WebApi.csproj", "{0AD7C6BD-302C-42B7-B2EE-C2A4845728AE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PayCentral.Tests", "PayCentral.Tests\PayCentral.Tests.csproj", "{93A1EF09-92E4-4F9B-AACC-DF3D176A9884}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
+	ProjectSection(SolutionItems) = preProject
+		AI-PROMPT-LOG.md = AI-PROMPT-LOG.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DD6A4E1C-D2FD-4F9A-80E8-9A74499E809B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD6A4E1C-D2FD-4F9A-80E8-9A74499E809B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD6A4E1C-D2FD-4F9A-80E8-9A74499E809B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD6A4E1C-D2FD-4F9A-80E8-9A74499E809B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6E1B80D4-3871-4660-8FFC-72E127271BB3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E1B80D4-3871-4660-8FFC-72E127271BB3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6E1B80D4-3871-4660-8FFC-72E127271BB3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6E1B80D4-3871-4660-8FFC-72E127271BB3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BD9063AB-D2B1-462D-B1FB-6CF7BB1A58CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BD9063AB-D2B1-462D-B1FB-6CF7BB1A58CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BD9063AB-D2B1-462D-B1FB-6CF7BB1A58CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BD9063AB-D2B1-462D-B1FB-6CF7BB1A58CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0AD7C6BD-302C-42B7-B2EE-C2A4845728AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0AD7C6BD-302C-42B7-B2EE-C2A4845728AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0AD7C6BD-302C-42B7-B2EE-C2A4845728AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0AD7C6BD-302C-42B7-B2EE-C2A4845728AE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{93A1EF09-92E4-4F9B-AACC-DF3D176A9884}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93A1EF09-92E4-4F9B-AACC-DF3D176A9884}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93A1EF09-92E4-4F9B-AACC-DF3D176A9884}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93A1EF09-92E4-4F9B-AACC-DF3D176A9884}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{DD6A4E1C-D2FD-4F9A-80E8-9A74499E809B} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{6E1B80D4-3871-4660-8FFC-72E127271BB3} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{BD9063AB-D2B1-462D-B1FB-6CF7BB1A58CC} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{0AD7C6BD-302C-42B7-B2EE-C2A4845728AE} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {76753B59-2887-4A55-AB52-5FB3230B9DCF}
+	EndGlobalSection
+EndGlobal

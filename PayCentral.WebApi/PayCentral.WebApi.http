@@ -1,0 +1,6 @@
+@PayCentral.WebApi_HostAddress = http://localhost:5173
+
+GET {{PayCentral.WebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
