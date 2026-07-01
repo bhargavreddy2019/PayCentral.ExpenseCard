@@ -126,3 +126,30 @@ decimal precision and relationships."
 - Design time factory needed for migrations to work
 - Package version conflicts between EF Core 10 and .NET 8
 - Missing configuration packages for SetBasePath
+
+
+## Entry 6 — Data Seeder
+
+**Prompt:**
+"I need a data seeder for my prepaid card platform. 
+I need an admin user, two cardholders, some merchants, 
+cards with wallets and sample transactions including 
+one that should trigger a fraud alert."
+
+**AI Produced:**
+- Static DataSeeder class with idempotent seed methods
+- 3 users, 3 merchants, 2 cards with wallets, 5 transactions
+- One international transaction and one large spend 
+  to trigger fraud rules later
+
+**My Decisions:**
+- Used fixed GUIDs for seed data — makes foreign key 
+  relationships predictable and testable
+- Included a R21,000 transaction to pre-trigger the 
+  fraud rule engine we build next
+- BCrypt work factor 12 consistent with production setting
+
+**What AI Missed:**
+- Nothing — seeder is straightforward
+
+
