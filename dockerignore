@@ -1,0 +1,7 @@
+**/.git
+**/.gitignore
+**/obj
+**/bin
+**/.vs
+**/node_modules
+paycentral-client
