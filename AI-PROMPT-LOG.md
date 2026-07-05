@@ -231,3 +231,27 @@ and JSON export."
 
 **What AI Missed:**
 - Nothing significant
+
+## Entry 12 — Unit Tests
+
+**Prompt:**
+"I need xUnit tests for my fraud rule engine, wallet 
+balance validation and card status transitions. 
+Use FluentAssertions for readable assertions."
+
+**AI Produced:**
+- 18 tests covering fraud rules, wallet and card domain
+- InMemory database helper for EF Core tests
+- FluentAssertions for readable test output
+
+**My Decisions:**
+- Added RowVersion byte array to test wallet builder —
+  AI missed that InMemory DB still enforces required 
+  properties configured in EF Core
+- Used separate InMemory DB per test via Guid.NewGuid() —
+  prevents test state leaking between tests
+
+**What AI Missed:**
+- RowVersion required property on Wallet entity
+  caused 4 test failures — fixed by adding default
+  byte array in test builder
